@@ -9,3 +9,11 @@ function slicesupport(A::AbstractMatrix, k; dims)
         throw(ArgumentError("slicesupport(::$(typeof(A)), $k; dims=$dims) is not supported."))
     end
 end
+
+function slicesupport(A::AbstractVector, k; dims)
+    if dims==1
+        ()
+    else
+        throw(ArgumentError("slicesupport(::$(typeof(A)), $k; dims=$dims) is not supported."))
+    end
+end

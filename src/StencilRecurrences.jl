@@ -1,5 +1,6 @@
 import StaticArrays: SVector, MVector
 import LinearAlgebra: rdiv!
+import Base: front
 
 export StencilRecurrence, StencilRecurrencePlan
 
@@ -53,10 +54,10 @@ function init(P::StencilRecurrencePlan; T=Float64, init=:default)
     elseif init == :rand
         buffer = CircularArray(rand(complex(T), front(P.size)..., P.offset[end]+1))
     end
-    StencilRecurrence(P.stencil, P.coef, buffer, P.offset), eachslice(view(buffer.data, fill(:, ndims(buffer)-1)..., size(buffer)[end][1:end-1]), dims=ndims(buffer))
+    StencilRecurrence(P.stencil, P.coef, buffer, MVector(P.offset), last(P.size)), eachslice(view(buffer.data, fill(:, ndims(buffer)-1)..., axes(buffer)[end][1:end-1]), dims=ndims(buffer))
 end
 
-function step!(R::StencilRecurrence)
+function step!(R::StencilRecurrence{N}) where N
     slice = last(R.offset)
     if slice > R.lastind
         return nothing
@@ -78,5 +79,9 @@ function step!(R::StencilRecurrence)
         buffer[i] = v
     end
     R.offset[end] += 1
-    return view(buffer, ind)
+    if N==1
+        view(buffer, ind[1])
+    else
+        view(buffer, ind)
+    end
 end

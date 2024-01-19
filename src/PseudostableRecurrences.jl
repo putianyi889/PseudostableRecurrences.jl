@@ -8,13 +8,16 @@ include("BandedMatricesExt.jl")
 include("AbstractRecurrences.jl")
 include("StencilRecurrences.jl")
 
+import LinearAlgebra: norm
+export stable_recurrence
+
 """
     precision_shift(P::AbstractLinearRecurrencePlan)
 
 Estimates `log2` of the amplification of `P` by performing a full recurrence based on random initial conditions.
 """
 function precision_shift(P::AbstractLinearRecurrencePlan)
-    test = recurrence_init(P; init=:rand)
+    test, _ = init(P; init=:rand)
     shift = 1
     testmax = 1.0
     while true

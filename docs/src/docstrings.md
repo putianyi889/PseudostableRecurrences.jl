@@ -1,0 +1,4 @@
+# Docstrings
+```@autodocs
+Modules = [PseudostableRecurrences]
+```
