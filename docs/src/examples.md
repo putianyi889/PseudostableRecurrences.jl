@@ -18,7 +18,7 @@ x[3] = sqrt(2)
 for k in 1:N-3
     x[k+3] = 10/3*x[k+2] - 3*x[k+1] + 2/3*x[k]
 end
-plot(4:N, abs.(x.-sqrt(2))[4:N], label="numerical error", yaxis=:log)
+plot(4:N, abs.(x.-sqrt(2))[4:N], label="numerical error", yaxis=:log, background_color=:transparent, foreground_color=:gray)
 ```
 
 The backward recurrence, on the other hand, will be dominated by the eigenvalue ``\frac{1}{3}`` instead. While there may be other algorithms that are stable in this case, they are not trivial and vary across different problems.
