@@ -5,6 +5,7 @@ import LazyArrays: BroadcastArray
 
 export StencilRecurrence, StencilRecurrencePlan
 
+if VERSION >= v"1.3"
 """
     StencilRecurrence{N,T,S,
         COEF<:NTuple{S,AbstractArray{T,N}},
@@ -19,7 +20,6 @@ For `coef` and `slicesupport`, tt's suggested to use lazy arrays for performance
 - `slicestart::MVector{N, Int}` and `sliceend::MVector{N, Int}`: marks the current range of entries to be determined. Technically `NTuple{N-1, Int}` should work, but `Julia` doesn't support computed type parameters.
 - `lastslice::Int`: marks the index of the slice where the recurrence terminates.
 """
-if VERSION >= v"1.3"
     struct StencilRecurrence{N, T, S, COEF<:NTuple{S,AbstractArray{T}}, TB<:AbstractArray{T,N}} <: AbstractLinearRecurrence{slicetype(TB)}
         stencil::NTuple{S, CartesianIndex{N}}
         coef::COEF
