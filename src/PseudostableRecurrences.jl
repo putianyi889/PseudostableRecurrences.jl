@@ -4,6 +4,7 @@ module PseudostableRecurrences
 
 include("Utils.jl")
 include("ArrayLayoutsExt.jl")
+include("FillArraysExt.jl")
 include("BandedMatricesExt.jl")
 include("AbstractRecurrences.jl")
 include("StencilRecurrences.jl")

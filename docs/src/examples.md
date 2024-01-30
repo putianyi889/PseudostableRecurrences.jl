@@ -40,10 +40,10 @@ coef1(m) = -3
 coef2(m) = 10//3
 P = StencilRecurrencePlan(
     SVector(CartesianIndex(-3), CartesianIndex(-2), CartesianIndex(-1)), # the stencil
-    SVector(coef0, coef1, coef2), # the coefficients associated with the stencil
+    (coef0, coef1, coef2), # the coefficients associated with the stencil
     (T, _) -> CircularArray([sqrt(T(2)), sqrt(T(2)), sqrt(T(2)), T(0)]), # the initial values of type T
     (N,), # size of the result
-    SVector(4) # the starting index of recurrence
+    CartesianIndex(4) # the starting index of recurrence
 )
 stable_recurrence(P, Float64)
 ```

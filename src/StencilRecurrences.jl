@@ -1,47 +1,56 @@
 import StaticArrays: SVector, MVector
 import LinearAlgebra: rdiv!
-import Base: front
+import Base: front, size
+import LazyArrays: BroadcastArray
 
 export StencilRecurrence, StencilRecurrencePlan
 
 """
-    StencilRecurrence{N, S, Tbuffer}
+    StencilRecurrence{N,T,S,
+        COEF<:NTuple{S,AbstractArray{T,N}},
+        TB<:AbstractArray{T,N},
+        TI<:AbstractVector{CartesianIndices{N}}
+    }
 
 # Properties
+For `coef` and `slicesupport`, tt's suggested to use lazy arrays for performance.
 - `stencil::SVector{S, CartesianIndex{N}}`: The relative index of the stencil. Can contain `(0,0)` (see `coef`)
-- `coef::SVector{S, Function}`: The coefficient associated with each relative index. The one associated with `CartesianIndex(0,0)` refers to a constant added to that entry. The functions should take the index of the stencil and the eltype as input. Coefficients should be as accurate as possible, i.e. return either `Rational` or `BigFloat`.
-- `buffer::Tbuffer`: a buffer to store temp results
-- `offset::CartesianIndex{N}`: the top-left most stencil index where the current step starts at.
-- `lastind::Int`: the recurrence terminates if `offset[end] > lastind`.
+- `coef::COEF<:NTuple{S,AbstractArray{T,N}}`: The coefficient associated with each relative index. The one associated with `CartesianIndex(0,0)` refers to a constant added to that entry. It's suggested to use lazy arrays for performance.
+- `buffer::CircularArray{T,N,TB<:AbstractArray{T,N}}`: a buffer to store temp results. 
+- `slicesupport::TI<:AbstractVector{CartesianIndices{N}}`: a vector that contains the indices of unknown entries in each slice.
+- `sliceind::Int`: the index of the current slice.
+- `lastind::Int`: the recurrence terminates if `sliceind > lastind`.
 """
-mutable struct StencilRecurrence{N, S, Tbuffer<:AbstractArray} <: AbstractLinearRecurrence{N}
+struct StencilRecurrence{N, T, S, COEF<:NTuple{S,AbstractArray{T}}, TB<:AbstractArray{T,N}} <: AbstractLinearRecurrence{slicetype(TB)}
     stencil::SVector{S, CartesianIndex{N}}
-    coef::SVector{S, Function}
-    buffer::Tbuffer
-    offset::MVector{N, Int} # marks the current step of the recurrence.
+    coef::COEF
+    buffer::CircularArray{T,N,TB}
+    slicestart::MVector{N, Int}
+    sliceend::MVector{N, Int}
     lastind::Int
 end
-buffer(R::StencilRecurrence) = R.buffer
 
 """
-    StencilRecurrencePlan{N, S, INIT} <: AbstractLinearRecurrencePlan
+    StencilRecurrencePlan{N, S, COEF<:NTuple{S,Function}, INIT<:Function} <: AbstractLinearRecurrencePlan
 
 # Properties
 - `stencil::SVector{S, CartesianIndex{N}}`: The relative index of the stencil. Can contain `(0,0)` (see `coef`)
-- `coef::SVector{S, Function}`: The coefficient associated with each relative index. The one associated with `CartesianIndex(0,0)` refers to a constant added to that entry. The functions should take the index of the stencil and the eltype as input. Coefficients should be as accurate as possible, i.e. return either `Rational` or `BigFloat`.
-- `init::INIT`: the function used for initial values.
+- `coef::COEF<:NTuple{S,Function}`: The coefficient associated with each relative index. The one associated with `CartesianIndex(0,0)` refers to a constant added to that entry. The functions should be in the form `f(I..., T)` where `I` is the index of the stencil and `T` is the suggested return type. Coefficients should be at least as accurate as `T`. Exact-value types such as `Irrational`, `Rational` or `Integer` would do the job, and if that's not possible, `BigFloat` would work as well.
+- `init::INIT<:Function`: the function used for initial values. The functions should be in the form `f(I..., T)` where `I` is the size of the array and `T` is the eltype.
 - `size::Dims{N}`: the size of the whole array.
-- `offset::SVector{N, Int}`: where the recurrence starts at.
+- `offset::CartesianIndex{N}`: the very first index where the recurrence starts at.
 """
-struct StencilRecurrencePlan{N, S, INIT} <: AbstractLinearRecurrencePlan
+struct StencilRecurrencePlan{N, S, COEF<:NTuple{S,Function}, INIT<:Function} <: AbstractLinearRecurrencePlan
     stencil::SVector{S, CartesianIndex{N}}
-    coef::SVector{S, Function}
+    coef::COEF
     init::INIT
     size::Dims{N}
-    offset::SVector{N, Int}
+    offset::CartesianIndex{N}
 end
 #StencilRecurrencePlan(stencil::SVector{S, CartesianIndex{N}}, coef::SVector{S, Function}, init, size::Dims{N}, offset::CartesianIndex{N}) where {N,S} = StencilRecurrencePlan{N, S, typeof(init)}(stencil, coef, init, size, offset) 
 StencilRecurrencePlan(stencil, coef, init, size) = StencilRecurrencePlan(stencil, coef, init, size, -minimum(stencil))
+
+size(P::StencilRecurrencePlan) = P.size
 
 function rdiv!(R::StencilRecurrence, x)
     rdiv!(R.buffer, x)
@@ -52,33 +61,36 @@ function init(P::StencilRecurrencePlan; T=Float64, init=:default)
     if init == :default
         buffer = P.init(T, P.size)
     elseif init == :rand
-        buffer = CircularArray(rand(complex(T), front(P.size)..., P.offset[end]+1))
+        buffer = CircularArray(rand(T, front(P.size)..., P.offset[end]))
     end
-    StencilRecurrence(P.stencil, P.coef, buffer, MVector(P.offset), last(P.size)), eachslice(view(buffer.data, fill(:, ndims(buffer)-1)..., axes(buffer)[end][1:end-1]), dims=ndims(buffer))
+    sliceind = P.offset[end]
+    sliceend = MVector(last.(slicesupport(buffer, sliceind, dims=ndims(buffer)))..., sliceind)
+    StencilRecurrence(P.stencil, (f->BroadcastArray{T}(splat(f), Product(axes(P)))).(P.coef), buffer, MVector(P.offset.I...), sliceend, P.size[end]), eachslice(view(buffer.data, fill(:, ndims(buffer)-1)..., axes(buffer)[end][1:end-1]), dims=ndims(buffer))
 end
 
 function step!(R::StencilRecurrence{N}) where N
-    slice = last(R.offset)
+    slice = last(R.slicestart)
     if slice > R.lastind
         return nothing
     end
     stencil, coef, buffer = R.stencil, R.coef, R.buffer
-    ind = CartesianIndex(R.offset...):CartesianIndex(last.(slicesupport(buffer, slice, dims=ndims(buffer)))..., slice)
+    ind = CartesianIndex(R.slicestart...):CartesianIndex(R.sliceend...)
     for i in ind
         v = zero(eltype(R.buffer))
         for (c, j) in zip(coef, stencil)
             if iszero(j)
-                @inbounds v += c(Tuple(i)...)
+                @inbounds v += c[Tuple(i)...]
             else
                 k = i + j
                 if checkbounds(Bool, buffer, front(k.I)..., 1)
-                    @inbounds v += c(Tuple(i)...)*buffer[k]
+                    @inbounds v += c[Tuple(i)...]*buffer[k]
                 end
             end
         end
         buffer[i] = v
     end
-    R.offset[end] += 1
+    R.slicestart[end] += 1
+    R.sliceend[end] += 1
     if N==1
         view(buffer, ind[1])
     else
