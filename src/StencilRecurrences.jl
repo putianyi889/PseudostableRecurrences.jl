@@ -37,14 +37,14 @@ end
 - `coef::COEF<:NTuple{S,Function}`: The coefficient associated with each relative index. The one associated with `CartesianIndex(0,0)` refers to a constant added to that entry. The functions should be in the form `f(I..., T)` where `I` is the index of the stencil and `T` is the suggested return type. Coefficients should be at least as accurate as `T`. Exact-value types such as `Irrational`, `Rational` or `Integer` would do the job, and if that's not possible, `BigFloat` would work as well.
 - `init::INIT<:Function`: the function used for initial values. The functions should be in the form `f(I..., T)` where `I` is the size of the array and `T` is the eltype.
 - `size::Dims{N}`: the size of the whole array.
-- `offset::CartesianIndex{N}`: the very first index where the recurrence starts at.
+- `offset::NTuple{N,Int}`: the very first index where the recurrence starts at.
 """
 struct StencilRecurrencePlan{N, S, COEF<:NTuple{S,Function}, INIT<:Function} <: AbstractLinearRecurrencePlan
     stencil::SVector{S, CartesianIndex{N}}
     coef::COEF
     init::INIT
     size::Dims{N}
-    offset::CartesianIndex{N}
+    offset::NTuple{N,Int}
 end
 #StencilRecurrencePlan(stencil::SVector{S, CartesianIndex{N}}, coef::SVector{S, Function}, init, size::Dims{N}, offset::CartesianIndex{N}) where {N,S} = StencilRecurrencePlan{N, S, typeof(init)}(stencil, coef, init, size, offset) 
 StencilRecurrencePlan(stencil, coef, init, size) = StencilRecurrencePlan(stencil, coef, init, size, -minimum(stencil))
@@ -64,7 +64,7 @@ function init(P::StencilRecurrencePlan; T=Float64, init=:default)
     end
     sliceind = P.offset[end]
     sliceend = MVector(last.(slicesupport(buffer, sliceind, dims=ndims(buffer)))..., sliceind)
-    StencilRecurrence(P.stencil, (f->BroadcastArray{T}(splat(f), Product(axes(P)))).(P.coef), buffer, MVector(P.offset.I...), sliceend, P.size[end]), eachslice(view(buffer.data, fill(:, ndims(buffer)-1)..., axes(buffer)[end][1:end-1]), dims=ndims(buffer))
+    StencilRecurrence(P.stencil, (f->BroadcastArray{T}(splat(f), Product(axes(P)))).(P.coef), buffer, MVector(P.offset...), sliceend, P.size[end]), eachslice(view(buffer.data, fill(:, ndims(buffer)-1)..., axes(buffer)[end][1:end-1]), dims=ndims(buffer))
 end
 
 function step!(R::StencilRecurrence{N}) where N
