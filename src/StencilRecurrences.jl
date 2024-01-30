@@ -5,7 +5,6 @@ import LazyArrays: BroadcastArray
 
 export StencilRecurrence, StencilRecurrencePlan
 
-if VERSION >= v"1.3"
 """
     StencilRecurrence{N,T,S,
         COEF<:NTuple{S,AbstractArray{T,N}},
@@ -15,35 +14,25 @@ if VERSION >= v"1.3"
 # Properties
 For `coef` and `slicesupport`, tt's suggested to use lazy arrays for performance.
 - `stencil::NTuple{S, CartesianIndex{N}}`: The relative index of the stencil. Can contain `(0,0)` (see `coef`)
-- `coef::COEF`: The coefficient associated with each relative index. The one associated with `CartesianIndex(0,0)` refers to a constant added to that entry. It's suggested to use lazy arrays for performance.
-- `buffer::CircularArray{T,N,TB}`: a buffer to store temp results. 
+- `coef::COEF<:NTuple{S,AbstractArray{T,N}}`: The coefficient associated with each relative index. The one associated with `CartesianIndex(0,0)` refers to a constant added to that entry. It's suggested to use lazy arrays for performance.
+- `buffer::CircularArray{T,N,TB<:AbstractArray{T,N}}`: a buffer to store temp results. 
 - `slicestart::MVector{N, Int}` and `sliceend::MVector{N, Int}`: marks the current range of entries to be determined. Technically `NTuple{N-1, Int}` should work, but `Julia` doesn't support computed type parameters.
 - `lastslice::Int`: marks the index of the slice where the recurrence terminates.
 """
-    struct StencilRecurrence{N, T, S, COEF<:NTuple{S,AbstractArray{T}}, TB<:AbstractArray{T,N}} <: AbstractLinearRecurrence{slicetype(TB)}
-        stencil::NTuple{S, CartesianIndex{N}}
-        coef::COEF
-        buffer::CircularArray{T,N,TB}
-        slicestart::MVector{N, Int}
-        sliceend::MVector{N, Int}
-        lastind::Int
-    end
-else
-    struct StencilRecurrence{COEF<:NTuple{S,AbstractArray{T<:Any}}, TB<:AbstractArray{T,N}} <: AbstractLinearRecurrence{slicetype(TB)} where {S,N}
-        stencil::NTuple{S, CartesianIndex{N}}
-        coef::COEF
-        buffer::CircularArray{T,N,TB}
-        slicestart::MVector{N, Int}
-        sliceend::MVector{N, Int}
-        lastind::Int
-    end
+struct StencilRecurrence{N, T, S, COEF<:NTuple{S,AbstractArray{T}}, TB<:AbstractArray{T,N}} <: AbstractLinearRecurrence{slicetype(TB)}
+    stencil::NTuple{S, CartesianIndex{N}}
+    coef::COEF
+    buffer::CircularArray{T,N,TB}
+    slicestart::MVector{N, Int}
+    sliceend::MVector{N, Int}
+    lastind::Int
 end
 
 """
     StencilRecurrencePlan{N, S, COEF<:NTuple{S,Function}, INIT<:Function} <: AbstractLinearRecurrencePlan
 
 # Properties
-- `stencil::NTuple{S, CartesianIndex{N}}`: The relative index of the stencil. Can contain `(0,0)` (see `coef`)
+- `stencil::SVector{S, CartesianIndex{N}}`: The relative index of the stencil. Can contain `(0,0)` (see `coef`)
 - `coef::COEF<:NTuple{S,Function}`: The coefficient associated with each relative index. The one associated with `CartesianIndex(0,0)` refers to a constant added to that entry. The functions should be in the form `f(I..., T)` where `I` is the index of the stencil and `T` is the suggested return type. Coefficients should be at least as accurate as `T`. Exact-value types such as `Irrational`, `Rational` or `Integer` would do the job, and if that's not possible, `BigFloat` would work as well.
 - `init::INIT<:Function`: the function used for initial values. The functions should be in the form `f(I..., T)` where `I` is the size of the array and `T` is the eltype.
 - `size::Dims{N}`: the size of the whole array.
@@ -56,6 +45,7 @@ struct StencilRecurrencePlan{N, S, COEF<:NTuple{S,Function}, INIT<:Function} <: 
     size::Dims{N}
     offset::NTuple{N,Int}
 end
+#StencilRecurrencePlan(stencil::SVector{S, CartesianIndex{N}}, coef::SVector{S, Function}, init, size::Dims{N}, offset::CartesianIndex{N}) where {N,S} = StencilRecurrencePlan{N, S, typeof(init)}(stencil, coef, init, size, offset) 
 StencilRecurrencePlan(stencil, coef, init, size) = StencilRecurrencePlan(stencil, coef, init, size, -minimum(stencil))
 
 size(P::StencilRecurrencePlan) = P.size
