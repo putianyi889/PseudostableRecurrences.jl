@@ -29,7 +29,7 @@ For `coef` and `slicesupport`, tt's suggested to use lazy arrays for performance
         lastind::Int
     end
 else
-    struct StencilRecurrence{COEF<:NTuple{S,AbstractArray{T}}, TB<:AbstractArray{T,N}} <: AbstractLinearRecurrence{slicetype(TB)} where S where T where N
+    struct StencilRecurrence{COEF<:NTuple{S,AbstractArray{T<:Any}}, TB<:AbstractArray{T,N}} <: AbstractLinearRecurrence{slicetype(TB)} where {S,N}
         stencil::NTuple{S, CartesianIndex{N}}
         coef::COEF
         buffer::CircularArray{T,N,TB}
