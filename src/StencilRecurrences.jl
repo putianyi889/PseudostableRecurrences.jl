@@ -1,6 +1,6 @@
 import StaticArrays: SVector, MVector
 import LinearAlgebra: rdiv!
-import Base: front, size
+import Base: front, size, splat
 import LazyArrays: BroadcastArray
 
 export StencilRecurrence, StencilRecurrencePlan
