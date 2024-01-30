@@ -8,9 +8,8 @@ export StencilRecurrence, StencilRecurrencePlan
 """
     StencilRecurrence{N,T,S,
         COEF<:NTuple{S,AbstractArray{T,N}},
-        TB<:AbstractArray{T,N},
-        TI<:AbstractVector{CartesianIndices{N}}
-    }
+        TB<:AbstractArray{T,N},}
+        (stencil, coef, buffer, slicestart, sliceend, lastind)
 
 # Properties
 For `coef` and `slicesupport`, tt's suggested to use lazy arrays for performance.
