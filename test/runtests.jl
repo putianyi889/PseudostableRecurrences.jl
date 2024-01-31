@@ -7,7 +7,7 @@ end
 
 using Documenter
 @testset "DocTest" begin
-    doctest(PseudostableRecurrences; manual = false)
+    doctest(PseudostableRecurrences; manual = true)
 end
 
 using Aqua

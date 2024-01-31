@@ -62,7 +62,7 @@ function init(P::StencilRecurrencePlan; T=Float64, init=:default)
         buffer = CircularArray(rand(T, front(P.size)..., P.offset[end]))
     end
     sliceind = P.offset[end]
-    sliceend = MVector(last.(slicesupport(buffer, sliceind, dims=ndims(buffer)))..., sliceind)
+    sliceend = MVector(front(size(P))..., sliceind)
     StencilRecurrence(P.stencil, (f->BroadcastArray{T}(splat(f), Product(axes(P)))).(P.coef), buffer, MVector(P.offset...), sliceend, P.size[end]), eachslice(view(buffer.data, fill(:, ndims(buffer)-1)..., axes(buffer)[end][1:end-1]), dims=ndims(buffer))
 end
 
