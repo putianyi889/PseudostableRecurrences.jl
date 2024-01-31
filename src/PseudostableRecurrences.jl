@@ -3,7 +3,6 @@ module PseudostableRecurrences
 # Write your package code here.
 
 include("Utils.jl")
-include("ArrayLayoutsExt.jl")
 include("CircularArraysExt.jl")
 include("FillArraysExt.jl")
 include("BandedMatricesExt.jl")
