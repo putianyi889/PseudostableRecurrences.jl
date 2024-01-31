@@ -8,7 +8,7 @@ x_1=x_2=x_3=\sqrt{2}, x_{n+3}-\frac{10}{3}x_{n+2}+3x_{n+1}-\frac{2}{3}x_n=0.
 ```
 Its eigenvalues are ``2``, ``\frac{1}{3}`` and ``1``, so the solution is constant - ``x_n=\sqrt{2}``. However, the forward recurrence is numerically unstable since an eigenvalue is greater than 1. The following experiment confirms that.
 
-```@example 2
+```@example
 using Plots
 N = 100
 x = zeros(N)
@@ -31,19 +31,47 @@ The current iteration of the strategy focuses on linear problems, where the end 
 The test recurrence may sound like a performance trade-off, but since it is run under a low precision, the cost is negligible.
 
 ### Linear-recursive Sequence
+First, we shall recognise that the linear recursive sequence is basically a 1D stencil recurrence with the stencil
 ```@example 1
-using PseudostableRecurrences, StaticArrays, CircularArrays
-N = 100
-stencil = SVector(CartesianIndex(-3), CartesianIndex(-2), CartesianIndex(-1))
+stencil = (CartesianIndex(-3), CartesianIndex(-2), CartesianIndex(-1));
+```
+with the coefficients
+```@example 1
 coef0(m) = 2//3
 coef1(m) = -3
 coef2(m) = 10//3
-P = StencilRecurrencePlan(
-    SVector(CartesianIndex(-3), CartesianIndex(-2), CartesianIndex(-1)), # the stencil
-    SVector(coef0, coef1, coef2), # the coefficients associated with the stencil
-    (T, _) -> CircularArray([sqrt(T(2)), sqrt(T(2)), sqrt(T(2)), T(0)]), # the initial values of type T
-    (N,), # size of the result
-    SVector(4) # the starting index of recurrence
-)
-stable_recurrence(P, Float64)
+coefs = (coef0, coef1, coef2)
+```
+
+They will work together to define the recurrence
+```julia
+# calculate x[m]
+x[m] = 0
+for i in 1:3
+    x[m] += coef[i](m)*x[m+stencil[i]]
+end
+```
+
+!!! note "Inhomogenious case"
+    To define a linear inhomogeneous recurrence, the coefficient associated with the zero cartesian index is used. For example, the recurrence
+    ```math
+    x_{n+3}-\frac{10}{3}x_{n+2}+3x_{n+1}-\frac{2}{3}x_n=\frac{1}{n}
+    ```
+    should be defined by
+    ```julia
+    stencil = (CartesianIndex(-3), CartesianIndex(-2), CartesianIndex(-1), CartesianIndex(0))
+    coefs = (coef0, coef1, coef2, m -> 1//m)
+    ```
+
+We then need to define the initial values
+```@example 1
+f_init(T) = [sqrt(T(2)), sqrt(T(2)), sqrt(T(2)), T(0)]
+```
+where the place for the next step should be reserved. This is a function that can generate values based on type `T`.
+
+Now we only need to further provide the size of the recurrence and we are ready to go.
+```@example 1
+using PseudostableRecurrences
+P = StencilRecurrencePlan(stencil, coefs, f_init, (100,))
+stable_recurrence(P) # defaults to stable_recurrence(P, Float64)
 ```

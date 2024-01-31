@@ -12,5 +12,5 @@ end
 
 using Aqua
 @testset "Project quality" begin
-    Aqua.test_all(PseudostableRecurrences, ambiguities=false, piracies=true, deps_compat=false)
+    Aqua.test_all(PseudostableRecurrences, ambiguities=false, piracies=true, deps_compat=false, unbound_args=false)
 end

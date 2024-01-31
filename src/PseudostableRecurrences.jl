@@ -4,6 +4,8 @@ module PseudostableRecurrences
 
 include("Utils.jl")
 include("ArrayLayoutsExt.jl")
+include("CircularArraysExt.jl")
+include("FillArraysExt.jl")
 include("BandedMatricesExt.jl")
 include("AbstractRecurrences.jl")
 include("StencilRecurrences.jl")
@@ -36,7 +38,7 @@ function precision_shift(P::AbstractLinearRecurrencePlan)
     return shift
 end
 
-function stable_recurrence(P::AbstractLinearRecurrencePlan, ::Type{T}) where T
+function stable_recurrence(P::AbstractLinearRecurrencePlan, ::Type{T} = Float64) where T
     envprec = precision(BigFloat)
     varprec = precision(T)
     setprecision(varprec + Int(ceil(precision_shift(P))))
