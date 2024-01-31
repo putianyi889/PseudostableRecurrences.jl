@@ -1,14 +1,4 @@
 """
-    smartdiv(x, y)
-
-Returns `x // y` when supported and `x / y` otherwise.
-"""
-smartdiv(x, y) = x / y
-smartdiv(x::Integer, y::Integer) = x // y
-smartdiv(x::Complex, y::Real) = complex(smartdiv(real(x), y), smartdiv(imag(x), y))
-smartdiv(x::Number, y::Complex) = smartdiv(x*conj(y), abs2(y))
-
-"""
     basetype(T)
 
 Iterates `eltype` on `T` until convergence. Returns the limit.
