@@ -46,7 +46,7 @@ struct StencilRecurrencePlan{N, S, COEF<:NTuple{S,Function}, INIT<:Function} <: 
     offset::NTuple{N,Int}
 end
 #StencilRecurrencePlan(stencil::SVector{S, CartesianIndex{N}}, coef::SVector{S, Function}, init, size::Dims{N}, offset::CartesianIndex{N}) where {N,S} = StencilRecurrencePlan{N, S, typeof(init)}(stencil, coef, init, size, offset) 
-StencilRecurrencePlan(stencil, coef, init, size) = StencilRecurrencePlan(stencil, coef, init, size, -minimum(stencil))
+StencilRecurrencePlan(stencil, coef, init, size) = StencilRecurrencePlan(stencil, coef, init, size, Tuple(-minimum(stencil)).+1)
 
 size(P::StencilRecurrencePlan) = P.size
 
@@ -57,7 +57,7 @@ end
 
 function init(P::StencilRecurrencePlan; T=Float64, init=:default)
     if init == :default
-        buffer = P.init(T, P.size)
+        buffer = tocircular(P.init(T))
     elseif init == :rand
         buffer = CircularArray(rand(T, front(P.size)..., P.offset[end]))
     end
