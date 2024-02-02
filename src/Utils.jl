@@ -1,9 +1,28 @@
 precision_convert(::Type{BigFloat}, prec, src::Real) = BigFloat(src, precision=prec)
 precision_convert(T, prec, src::Real) = T(src)
 
-slicetype(T) = eltype(T)
-slicetype(T::Type{<:AbstractVector}) = eltype(T)
-slicetype(T::Type{<:AbstractArray{S,N}}) where {S,N} = nameof(T){S, N-1}
+
+"""
+    slicetype(T)
+
+Get the type of a slice of `T`
+
+# Examples
+```jldoctest
+julia> using PseudostableRecurrences: slicetype # hide
+
+julia> slicetype(Matrix{Float64})
+Vector{Float64} (alias for Array{Float64, 1})
+
+julia> slicetype(UnitRange{Int})
+Int64
+
+julia> slicetype(BitArray{3})
+BitMatrix (alias for BitArray{2})
+```
+"""
+slicetype(T) = T
+slicetype(T::Type{<:AbstractArray{S,N}}) where {S,N} = Union{Core.Compiler.return_types(getindex, (T, fill(Colon,N-1)..., Int))...}
 
 import CircularArrays: CircularArray
 iscircular(::Array) = false
