@@ -12,7 +12,13 @@ Get the type of a slice of `T`
 julia> using PseudostableRecurrences: slicetype # hide
 
 julia> slicetype(Matrix{Float64})
-Vector{Float64} (alias for Array{Float64, 1})
+$(
+    if VERSION <= v"1.3"
+        "Array{Float64, 1}"
+    else
+        "Vector{Float64} (alias for Array{Float64, 1})"
+    end
+)
 
 julia> slicetype(UnitRange{Int})
 Int64
@@ -22,7 +28,7 @@ BitMatrix (alias for BitArray{2})
 ```
 """
 slicetype(T) = T
-slicetype(T::Type{<:AbstractArray{S,N}}) where {S,N} = Union{Core.Compiler.return_types(getindex, (T, fill(Colon,N-1)..., Int))...}
+slicetype(T::Type{<:AbstractArray{S,N}}) where {S,N} = Union{Base.return_types(getindex, (T, fill(Colon,N-1)..., Int))...}
 
 import CircularArrays: CircularArray
 iscircular(::Array) = false
