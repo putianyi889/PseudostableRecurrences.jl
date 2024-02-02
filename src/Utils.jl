@@ -9,7 +9,7 @@ Get the type of a slice of `T`
 
 # Examples
 ```jldoctest
-julia> using PseudostableRecurrences: slicetype # hide
+julia> using PseudostableRecurrences: slicetype
 
 julia> slicetype(Matrix{Float64})
 $(VERSION < v"1.6" ? "Array{Float64,1}" : "Vector{Float64} (alias for Array{Float64, 1})")
