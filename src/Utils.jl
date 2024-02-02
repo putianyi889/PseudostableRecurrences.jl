@@ -14,7 +14,7 @@ julia> using PseudostableRecurrences: slicetype # hide
 julia> slicetype(Matrix{Float64})
 $(
     if VERSION < v"1.6"
-        "Array{Float64, 1}"
+        "Array{Float64,1}"
     else
         "Vector{Float64} (alias for Array{Float64, 1})"
     end
@@ -24,7 +24,13 @@ julia> slicetype(UnitRange{Int})
 Int64
 
 julia> slicetype(BitArray{3})
-BitMatrix (alias for BitArray{2})
+$(
+    if VERSION < v"1.6"
+        "BitArray{2}"
+    else
+        "BitMatrix (alias for BitArray{2})"
+    end
+)
 ```
 """
 slicetype(T) = T
