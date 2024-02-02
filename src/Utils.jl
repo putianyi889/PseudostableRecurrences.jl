@@ -13,7 +13,7 @@ julia> using PseudostableRecurrences: slicetype # hide
 
 julia> slicetype(Matrix{Float64})
 $(
-    if VERSION <= v"1.3"
+    if VERSION < v"1.6"
         "Array{Float64, 1}"
     else
         "Vector{Float64} (alias for Array{Float64, 1})"
