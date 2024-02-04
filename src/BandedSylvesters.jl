@@ -15,13 +15,24 @@ The recurrence generated from the infinite Sylvester equation ``AX+XB+C=0``, ass
 - `sliceind::Int`: the current column index.
 - `lastind::Int`: the last column index to be computed.
 """
-mutable struct BandedSylvesterRecurrence{T, TA<:AbstractMatrix{T}, TB<:AbstractMatrix{T}, TC<:AbstractMatrix{T}, TX<:AbstractMatrix{T}} <: AbstractLinearRecurrence{slicetype(TX)}
-    const A::TA
-    const B::TB
-    const C::TC
-    const buffer::TX
-    sliceind::Int
-    const lastind::Int
+@static if VERSION < v"1.8"
+    mutable struct BandedSylvesterRecurrence{T, TA<:AbstractMatrix{T}, TB<:AbstractMatrix{T}, TC<:AbstractMatrix{T}, TX<:AbstractMatrix{T}} <: AbstractLinearRecurrence{slicetype(TX)}
+        A::TA
+        B::TB
+        C::TC
+        buffer::TX
+        sliceind::Int
+        lastind::Int
+    end
+else
+    mutable struct BandedSylvesterRecurrence{T, TA<:AbstractMatrix{T}, TB<:AbstractMatrix{T}, TC<:AbstractMatrix{T}, TX<:AbstractMatrix{T}} <: AbstractLinearRecurrence{slicetype(TX)}
+        const A::TA
+        const B::TB
+        const C::TC
+        const buffer::TX
+        sliceind::Int
+        const lastind::Int
+    end
 end
 buffer(R::BandedSylvesterRecurrence) = R.buffer
 
