@@ -30,3 +30,6 @@ iscircular(::CircularArray) = true
 iscircular(A::AbstractArray) = iscircular(parent(A))
 
 tocircular(A::AbstractArray) = iscircular(A) ? A : CircularArray(A)
+
+# not to be confused with LinearAlgebra.BLAS.dotu
+_dotu(x, y) = mapreduce(*, +, x, y)
