@@ -4,6 +4,7 @@ authors = ["Tianyi Pu <912396513@qq.com> and contributors"]
 version = "0.0.1"
 
 [deps]
+ArrayLayouts = "4c555306-a7a7-4459-81d9-ec55ddd5c99a"
 BandedMatrices = "aae01518-5342-5314-be14-df237901396f"
 CircularArrays = "7a955b69-7140-5f4e-a0ed-f168c5e2e749"
 Infinities = "e1ba4f0e-776d-440f-acd9-e1d2e9742647"
@@ -12,6 +13,7 @@ LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
+ArrayLayouts = "1"
 BandedMatrices = "0.15, 0.16, 0.17, 1"
 CircularArrays = "1"
 Infinities = "0.1"
