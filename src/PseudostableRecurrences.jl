@@ -8,6 +8,7 @@ include("FillArraysExt.jl")
 include("BandedMatricesExt.jl")
 include("AbstractRecurrences.jl")
 include("StencilRecurrences.jl")
+include("BandedSylvesters.jl")
 
 import LinearAlgebra: norm
 export stable_recurrence
