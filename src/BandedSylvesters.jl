@@ -1,5 +1,5 @@
 import ArrayLayouts: colsupport, rowsupport
-import BandedMatrices: lowerbandwidth
+import BandedMatrices: bandwidth
 
 """
     BandedSylvesterRecurrence{T, TA<:AbstractMatrix{T}, TB<:AbstractMatrix{T}, TC<:AbstractMatrix{T}, TX<:AbstractMatrix{T}} <: AbstractLinearRecurrence{slicetype(TX)}
@@ -24,6 +24,10 @@ else
 end
 
 buffer(R::BandedSylvesterRecurrence) = R.buffer
+function rdiv!(P::BandedSylvesterRecurrence, x)
+    rdiv!(P.buffer)
+    P
+end
 
 """
     BandedSylvesterRecurrencePlan{FA<:Function, FB<:Function, FC<:Function, INIT<:Function} <: AbstractLinearRecurrencePlan
@@ -66,13 +70,13 @@ function step!(R::BandedSylvesterRecurrence)
     end
     A, B, X = R.A, R.B, R.buffer
     nx = R.sliceind
-    n = nx - lowerbandwidth(B)
+    n = nx - bandwidth(B,1)
     ind = axes(X, 1)
     Bs = colsupport(B, n)
+    Bv = B[(Base.OneTo(nx-1)) ∩ Bs, n]
     for m in ind
         I1 = rowsupport(A, m) ∩ ind
-        I2 = (Base.OneTo(nx-1)) ∩ Bs
-        X[m, nx] = (_dotu(view(A,m,I1), view(X,I1,n)) + _dotu(view(X,m,I2), view(B,I2,n)) + C[nx,n]) / B[nx,n]
+        X[m, nx] = (_dotu(view(A,m,I1), view(X,I1,n)) + _dotu(view(X,m,I2), Bv) + C[nx,n]) / B[nx,n]
     end
     R.sliceind += 1
     return view(X, :, nx)
