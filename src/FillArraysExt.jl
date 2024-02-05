@@ -1,6 +1,6 @@
 import Base: getindex, size
 
-struct Product{S<:NTuple{N,AbstractVector}} <: AbstractArray{Tuple{eltype.(S)...},N}
+struct Product{S<:NTuple{N,AbstractVector}} where N <: AbstractArray{Tuple{eltype.(S)...},N}
     args::S
 end
 Product(A::AbstractVector...) = Product(A)
