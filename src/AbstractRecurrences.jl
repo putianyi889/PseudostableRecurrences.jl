@@ -30,7 +30,7 @@ abstract type AbstractRecurrence{T} end
 
 A recurrence where the results are linear w.r.t. the initial conditions. To support pseudostablization, the following methods are needed:
 
-- `rdiv!(::AbstractLinearRecurrence, x::Number)`: divides the system by `x`. It is used to prevent overflow.
+- `rdiv!(::AbstractLinearRecurrence, x::Number)`: divides the system by `x`. It is used to prevent floating point overflow.
 - `LinearAlgebra.norm(step!(::AbstractLinearRecurrence), Inf)`: computes the ∞-norm of a step. It is used to get the amplification of the system.
 """
 abstract type AbstractLinearRecurrence{T} <: AbstractRecurrence{T} end
