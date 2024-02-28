@@ -45,7 +45,7 @@ coefs = (n -> 2//3, n -> -3, n -> 10//3)
     should be defined by
     ```julia
     stencil = (CartesianIndex(-3), CartesianIndex(-2), CartesianIndex(-1), CartesianIndex(0))
-    coefs = (coef0, coef1, coef2, n -> 1//n)
+    coefs = (n -> 2//3, n -> -3, n -> 10//3, n -> 1//n)
     ```
 
 We then need to define the initial values
@@ -57,6 +57,6 @@ where the place for the next step should be reserved. This is a function that ca
 Now we only need to further provide the size of the recurrence and we are ready to go.
 ```@example 1
 using PseudostableRecurrences
-P = StencilRecurrencePlan(stencil, coefs, f_init, (100,))
+P = StencilRecurrencePlan{Real}(stencil, coefs, f_init, (100,)) # 'Real' specifies the domain of the entries, as opposed to 'Complex', etc.
 stable_recurrence(P) # defaults to stable_recurrence(P, Float64)
 ```
