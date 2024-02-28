@@ -114,7 +114,7 @@ julia> precisionconvert(BigFloat, 1//3+im, 128)
 0.3333333333333333333333333333333333333338 + 1.0im
 
 julia> precisionconvert(Float16, [[m/n for n in 1:3] for m in 1:3])
-3-element Vector{Vector{Float16}}:
+3-element $(repr(Vector{Vector{Float16}})):
  [1.0, 0.5, 0.3333]
  [2.0, 1.0, 0.6665]
  [3.0, 1.5, 1.0]
