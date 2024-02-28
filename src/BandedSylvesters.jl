@@ -18,9 +18,9 @@ The recurrence generated from the infinite Sylvester equation ``AX+XB+C=0``, ass
 BandedSylvesterRecurrence
 
 @static if VERSION < v"1.8"
-    include("fragments/BandedSylvesterRecurrence1.jl")    
+    include("../fragments/BandedSylvesterRecurrence1.jl")    
 else
-    include("fragments/BandedSylvesterRecurrence2.jl")
+    include("../fragments/BandedSylvesterRecurrence2.jl")
 end
 
 buffer(R::BandedSylvesterRecurrence) = R.buffer
