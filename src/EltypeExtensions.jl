@@ -99,6 +99,7 @@ julia> _to_precisiontype(Int, Complex{Rational{BigInt}})
 Complex{Rational{Int64}}
 ```
 """
+_to_precisiontype(::Type{T}, ::Type{Complex}) where T = Complex{T}
 _to_precisiontype(::Type{T}, ::Type{Complex{S}}) where {T,S} = Complex{_to_precisiontype(T,S)}
 _to_precisiontype(::Type{T}, ::Type{<:Rational}) where T<:Integer = Rational{T}
 _to_precisiontype(::Type{T}, ::Type{S}) where {T,S} = eltype(S) == S ? T : _to_eltype(_to_precisiontype(T, eltype(S)), S)

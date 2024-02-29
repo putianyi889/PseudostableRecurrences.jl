@@ -56,7 +56,8 @@ struct StencilRecurrencePlan{N, D, S, COEF<:NTuple{S,Function}, INIT<:Function} 
     offset::NTuple{N,Int}
 end
 #StencilRecurrencePlan(stencil::SVector{S, CartesianIndex{N}}, coef::SVector{S, Function}, init, size::Dims{N}, offset::CartesianIndex{N}) where {N,S} = StencilRecurrencePlan{N, S, typeof(init)}(stencil, coef, init, size, offset) 
-StencilRecurrencePlan{D}(stencil, coef, init, size) where D = StencilRecurrencePlan{length(size),D,length(stencil),typeof(coef),typeof(init)}(stencil, coef, init, size, Tuple(-minimum(stencil)).+1)
+StencilRecurrencePlan{D}(stencil, coef, init, size, offset) where D = StencilRecurrencePlan{length(size),D,length(stencil),typeof(coef),typeof(init)}(stencil, coef, init, size, offset)
+StencilRecurrencePlan{D}(stencil, coef, init, size) where D = StencilRecurrencePlan{D}(stencil, coef, init, size, Tuple(-minimum(stencil)).+1)
 
 size(P::StencilRecurrencePlan) = P.size
 
