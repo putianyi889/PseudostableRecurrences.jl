@@ -1,5 +1,6 @@
 using PseudostableRecurrences
 using Test
+using QuadGK
 
 @testset "Examples" begin
     # Write your tests here.
@@ -25,7 +26,8 @@ using Test
             A
         end
         P = StencilRecurrencePlan{Complex}(stencil, coef, f_init, (101,101), (1,2))
-        stable_recurrence(P)
+        ret = hcat(stable_recurrence(P)...)
+        @test ret[92:end, 92:end] ≈ [quadgk(x->(cos(x)/(1+sin(x)))^m*exp(im*n*x), 0, π)[1] for m in 91:100, n in 91:100]
     end
 end
 
