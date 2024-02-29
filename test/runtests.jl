@@ -16,7 +16,7 @@ using Test
         coef2(m,n) = (m+n-3)//(n-1)//im
         coef3(m,n) = 2//(n-1)*ifelse(isodd(m+n), im, -1)
         coef = (coef1, coef2, coef3)
-        function f_init(T)
+        function f_init(T, m)
             A = zeros(Complex{T},m,2)
             A[1,1] = π
             for mm in 3:2:m
