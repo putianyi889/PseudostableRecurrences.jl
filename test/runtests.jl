@@ -10,6 +10,23 @@ using Test
         P = StencilRecurrencePlan{Real}(stencil, coefs, f_init, (100,))
         @test stable_recurrence(P)[end] ≈ sqrt(2)
     end
+    @testset "A definite integral" begin
+        stencil = (CartesianIndex(-1,-1), CartesianIndex(0,-1), CartesianIndex(0,0))
+        coef1(m,n) = (m-1)//(n-1)
+        coef2(m,n) = (m+n-3)//(n-1)//im
+        coef3(m,n) = 2//(n-1)*ifelse(isodd(m+n), im, -1)
+        coef = (coef1, coef2, coef3)
+        function f_init(T)
+            A = zeros(Complex{T},m,2)
+            A[1,1] = π
+            for mm in 3:2:m
+                A[mm,1] = -A[mm-2,1] + 4//(mm-2)
+            end
+            A
+        end
+        P = StencilRecurrencePlan{Complex}(stencil, coef, f_init, (101,101), (1,2))
+        stable_recurrence(P)
+    end
 end
 
 @testset "Extensions" begin

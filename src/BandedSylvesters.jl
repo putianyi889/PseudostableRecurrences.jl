@@ -1,5 +1,6 @@
 import ArrayLayouts: colsupport, rowsupport
 import BandedMatrices: bandwidth
+import Base: size
 
 """
     BandedSylvesterRecurrence{T, TA<:AbstractMatrix{T}, TB<:AbstractMatrix{T}, TC<:AbstractMatrix{T}, TX<:AbstractMatrix{T}} <: AbstractLinearRecurrence{slicetype(TX)}
