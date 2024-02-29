@@ -12,5 +12,6 @@ makedocs(
 # for more information.
 deploydocs(
     repo = "https://github.com/putianyi889/PseudostableRecurrences.jl.git",
+    devurl = "dev",
     versions = ["stable" => "v^", "v#.#.#", devurl => devurl]
 )
