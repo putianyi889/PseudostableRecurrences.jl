@@ -11,5 +11,6 @@ makedocs(
 # See "Hosting Documentation" and deploydocs() in the Documenter manual
 # for more information.
 deploydocs(
-    repo = "https://github.com/putianyi889/PseudostableRecurrences.jl.git"
+    repo = "https://github.com/putianyi889/PseudostableRecurrences.jl.git",
+    versions = ["stable" => "v^", "v#.#.#", devurl => devurl]
 )
