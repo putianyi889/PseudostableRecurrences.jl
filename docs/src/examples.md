@@ -78,9 +78,7 @@ coef3(m,n) = 2//(n-1)*ifelse(isodd(m+n), im, -1)
 coef = (coef1, coef2, coef3)
 ```
 Note that Julia indices starts at 1, hence the `m-1`, `n-1`, etc.. Recall that the `CartesianIndex(0,0)` and `coef3` corresponds to the inhomogeneous term
-```math
-\frac{2}{n}\begin{cases} i,\\ -1, \end{cases}&\!\!\!\begin{array}{l} m+n\text{ odd}\\ m+n\text{ even}. \end{array}
-```
+``\displaystyle\frac{2}{n}\begin{cases}i, & m+n\text{ odd}\\ -1, & m+n\text{ even}\end{cases}``.
 
 We need to initialise the first column as well.
 ```@example 2
