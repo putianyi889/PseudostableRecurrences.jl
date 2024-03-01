@@ -19,6 +19,7 @@ jobs:
     permissions: # needed to allow julia-actions/cache to proactively delete old caches that it has created
       actions: write
       contents: read
+    continue-on-error: ${{ matrix.allow_failure }}
     strategy:
       fail-fast: false
       matrix:
@@ -26,11 +27,14 @@ jobs:
           - '1.5'
           - '1.10'
           - 'nightly'
+        os: [ubuntu-latest]
+        arch: [x64]
+        allow_failure: [false]
+        include:
+          - version: 'nightly'
+            os: ubuntu-latest
+            arch: x64
             allow_failure: true
-        os:
-          - ubuntu-latest
-        arch:
-          - x64
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v1
