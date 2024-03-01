@@ -31,7 +31,6 @@ using QuadGK
     end
     @testset "Fractional integral operator" begin
         include("fractional_integral_operator.jl")
-        using FillArrays, Infinities
         α, β, b, p, μ = 0.0, 0.0, 0.0, 2, 1//2
         N = 100
         k = Int(μ*p)

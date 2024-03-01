@@ -2,6 +2,7 @@ using ClassicalOrthogonalPolynomials
 using LinearAlgebra
 using BandedMatrices
 using SpecialFunctions
+using InfiniteArrays
 
 OpR(γ,δ,α,β) = Jacobi(γ,δ) \ Jacobi(α,β); # R_{(α,β)}^{(γ,δ)}
 OpL(α,β,k,j) = Jacobi(α,β) \ (JacobiWeight(k,j).*Jacobi(α+k,β+j)); # L_{(α+k,β+j)}^{(α,β)}
