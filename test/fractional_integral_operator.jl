@@ -18,8 +18,8 @@ function OpI(α,β,b,p,N)
     p/2^(p-1)*L*R1*Diagonal(OpInvW(b+p-1).diag[1:N])*R2
 end
 
-fracpochhammer(a,b,n) = prod(x/y for (x,y) in zip(range(a,length=n),range(b,length=n)); init=one(promote_type(typeof(a),typeof(b))))
-fracpochhammer(a,b,stepa,stepb,n) = prod(x/y for (x,y) in zip(range(a,step=stepa,length=n),range(b,step=stepb,length=n)); init=one(promote_type(typeof(a),typeof(b))))
+fracpochhammer(a,b,n) = n==0 ? one(promote_type(typeof(a),typeof(b))) : prod(x/y for (x,y) in zip(range(a,length=n),range(b,length=n)))
+fracpochhammer(a,b,stepa,stepb,n) = n==0 ? one(promote_type(typeof(a),typeof(b))) : prod(x/y for (x,y) in zip(range(a,step=stepa,length=n),range(b,step=stepb,length=n)))
 OpCsingle(α,β,k,n) = (-1)^(n-k)*fracpochhammer(k+β+1,one(β),n-k)*fracpochhammer(n+α+β+1,2*one(β),1,2,k); # [k,n]
 function OpCcolumn(α,β,n) # [:,n]
     (α,β)=promote(α,β)
