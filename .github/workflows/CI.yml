@@ -26,6 +26,7 @@ jobs:
           - '1.5'
           - '1.10'
           - 'nightly'
+            allow_failure: true
         os:
           - ubuntu-latest
         arch:
