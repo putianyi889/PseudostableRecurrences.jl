@@ -2,6 +2,8 @@ import ArrayLayouts: colsupport, rowsupport
 import BandedMatrices: bandwidth
 import Base: size
 
+export BandedSylvesterRecurrencePlan, BandedSylvesterRecurrence
+
 """
     BandedSylvesterRecurrence{T, TA<:AbstractMatrix{T}, TB<:AbstractMatrix{T}, TC<:AbstractMatrix{T}, TX<:AbstractMatrix{T}} <: AbstractLinearRecurrence{slicetype(TX)}
 
@@ -56,28 +58,31 @@ size(P::BandedSylvesterRecurrencePlan) = P.size
 
 function init(P::BandedSylvesterRecurrencePlan; T=Float64, init=:default)
     if init == :default
-        buffer = tocircular(P.init(T, size(P)...))
+        buffer = tocircular(method_to_precision(P.init, (Int,))(T, size(P)[1]))
     elseif init == :rand
-        buffer = CircularArray(rand(T, front(size(P))..., P.firstind))
+        buffer = CircularArray(rand(T, size(P)[1], +(P.bandB...)))
     end
-    A = P.fA(T)
-    B = P.fB(T)
-    BandedSylvesterRecurrence(A, B, buffer, P.firstind, P.size[end])
+    A = method_to_precision(P.fA,())(T)
+    B = method_to_precision(P.fB,())(T)
+    C = method_to_precision(P.fC,())(T)
+    BandedSylvesterRecurrence(A, B, C, buffer, P.firstind, P.size[end]), eachslice(view(buffer.data, fill(:, ndims(buffer)-1)..., axes(buffer)[end][1:P.firstind-1]), dims=ndims(buffer))
 end
 
 function step!(R::BandedSylvesterRecurrence)
+    # A[m,:]X[:,n] + X[m,:]B[:,n] + C[m,n] = 0
     if R.sliceind > R.lastind
         return nothing
     end
-    A, B, X = R.A, R.B, R.buffer
+    A, B, C, X = R.A, R.B, R.C, R.buffer
     nx = R.sliceind
     n = nx - bandwidth(B,1)
     ind = axes(X, 1)
     Bs = colsupport(B, n)
-    Bv = B[(Base.OneTo(nx-1)) ∩ Bs, n]
+    I2 = (Base.OneTo(nx-1)) ∩ Bs
+    Bv = B[I2, n]
     for m in ind
         I1 = rowsupport(A, m) ∩ ind
-        X[m, nx] = (_dotu(view(A,m,I1), view(X,I1,n)) + _dotu(view(X,m,I2), Bv) + C[nx,n]) / B[nx,n]
+        X[m, nx] = -(_dotu(view(A,m,I1), view(X,I1,n)) + _dotu(view(X,m,I2), Bv) + C[m,n]) / B[nx,n]
     end
     R.sliceind += 1
     return view(X, :, nx)
