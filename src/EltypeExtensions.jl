@@ -123,6 +123,7 @@ julia> precisionconvert(Float16, [[m/n for n in 1:3] for m in 1:3])
 """
 precisionconvert(T,A) = precisionconvert(T,A,precision(T))
 precisionconvert(::Type{T}, A::S, prec) where {T,S} = convert(_to_precisiontype(T,S), A)
+precisionconvert(::Type{BigFloat}, A::S) where {S} = convert(_to_precisiontype(BigFloat,S), A)
 precisionconvert(::Type{BigFloat}, x::Real, prec) = BigFloat(x, precision=prec)
 precisionconvert(::Type{BigFloat}, x::Complex, prec) = Complex(BigFloat(real(x), precision=prec), BigFloat(imag(x), precision=prec))
 precisionconvert(::Type{BigFloat}, A, prec) = precisionconvert.(BigFloat, A, precision=prec)

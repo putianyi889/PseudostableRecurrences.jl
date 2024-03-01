@@ -29,6 +29,23 @@ using QuadGK
         ret = hcat(stable_recurrence(P)...)
         @test ret[92:end, 92:end] ≈ [quadgk(x->(cos(x)/(1+sin(x)))^m*exp(im*n*x), 0, π)[1] for m in 91:100, n in 91:100]
     end
+    @testset "Fractional integral operator" begin
+        include("fractional_integral_operator.jl")
+        α, β, b, p, μ = 0.0, 0.0, 0.0, 2, 1//2
+        N = 100
+        k = Int(μ*p)
+        fA(T) = OpI(T(α), T(β), T(b), T(p), N+k+p+1)
+        fB(T) = -fA(T)
+        fC(T) = Zeros{T}(∞,∞)
+        function init(T, N)
+            ret = zeros(T, N, 2*p+1)
+            ret[1:k+2, 1:k+1] = OpI11(T(α), T(β), T(b), T(p), T(μ), k)
+            ret
+        end
+        P = BandedSylvesterRecurrencePlan(fA, fB, fC, init, (N+k+1,N+1), (p, p))
+        FIO = hcat(stable_recurrence(P)...)
+        @test FIO[1:N,:] * FIO[1:N+1,1:N] ≈ OpI(α,β,b,p,N)
+    end
 end
 
 @testset "Extensions" begin
