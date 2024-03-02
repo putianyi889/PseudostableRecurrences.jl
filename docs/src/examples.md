@@ -13,6 +13,7 @@ using PseudostableRecurrences
 ```@example 1
 stencil = (CartesianIndex(-3), CartesianIndex(-2), CartesianIndex(-1))
 coefs = (n -> 2//3, n -> -3, n -> 10//3)
+nothing # hide
 ```
 
 !!! note "Inhomogeneous case"
@@ -29,6 +30,7 @@ coefs = (n -> 2//3, n -> -3, n -> 10//3)
 We then need to define the initial values
 ```@example 1
 f_init(T) = [sqrt(T(2)), sqrt(T(2)), sqrt(T(2)), T(0)]
+nothing # hide
 ```
 where the place for the next step should be reserved. This is a function that can generate values based on type `T`.
 
@@ -38,7 +40,7 @@ P = StencilRecurrencePlan{Real}(stencil, coefs, f_init, (100,)) # 'Real' specifi
 stable_recurrence(P) # defaults to stable_recurrence(P, Float64)
 ```
 
-## Special integrals
+## A definite integral
 Consider the integral
 ```math
 I(m,n) = \int_0^\pi\left(\frac{\cos x}{1+\sin x}\right)^me^{inx}\mathrm{d}x
@@ -69,6 +71,7 @@ using PseudostableRecurrences, BenchmarkTools, QuadGK
 ```
 ```@example 2
 stencil = (CartesianIndex(-1,-1), CartesianIndex(0,-1), CartesianIndex(0,0))
+nothing # hide
 ```
 and
 ```@example 2
@@ -76,6 +79,7 @@ coef1(m,n) = (m-1)//(n-1)
 coef2(m,n) = (m+n-3)//(n-1)//im
 coef3(m,n) = 2//(n-1)*ifelse(isodd(m+n), im, -1)
 coef = (coef1, coef2, coef3)
+nothing # hide
 ```
 Note that Julia indices starts at 1, hence the `m-1`, `n-1`, etc.. Recall that the `CartesianIndex(0,0)` and `coef3` corresponds to the inhomogeneous term
 ``\displaystyle\frac{2}{n}\begin{cases}i, & m+n\text{ odd}\\ -1, & m+n\text{ even}\end{cases}``.
@@ -90,6 +94,7 @@ function f_init(T, m)
     end
     A
 end
+nothing # hide
 ```
 Here, `m` specifies the size of the first dimension. For an ``n``-dimensional stencil recurrence, each slice has ``n-1`` dimensions, so the initialization function has to take ``n-1`` size arguments.
 
@@ -116,3 +121,62 @@ maximum(abs, ret[92:end, 92:end] - [quadgk(x->(cos(x)/(1+sin(x)))^m*exp(im*n*x),
     @btime quadgk(x->exp(im*100*x), 0, π);
     ```
     This is why we don't compare the whole matrix.
+
+## Fractional integral operator
+
+> Reference
+
+> Pu, Tianyi, and Marco Fasondini. "The numerical solution of fractional integral equations via orthogonal polynomials in fractional powers." Advances in Computational Mathematics 49, no. 1 (2023): 7.
+
+As a preparation, we load some functions for operators:
+```@setup 3
+using PseudostableRecurrences
+```
+```@example 3
+include("../../test/fractional_integral_operator.jl")
+nothing # hide
+```
+
+Suppose we know a banded integral operator ``L``:
+```@example 3
+# 0,0,0,2 are parameters of the object space. See the reference for details.
+N = 100 # truncation size
+L = OpI(0,0,0,2,N) 
+```
+and we want to obtain ``\sqrt{L}`` which is upper Hessenberg. We know how to compute each entry of ``\sqrt{L}``:
+```@example 3
+# 0.5 is the order for sqrt.
+# the last argument is truncation size.
+sqrtL = OpI11(0,0,0,2,0.5,5)
+```
+but it's very expensive. Fortunately, we have the banded Sylvester equation ``\sqrt{L}L = L\sqrt{L}`` which is basically a stencil recurrence, so we can just compute the first few entries and use recurrence to get the rest. Further, `PseudostableRecurrences.jl` has `BandedSylvesterRecurrence` implemented, so we have a shortcut.
+
+The `BandedSylvesterRecurrence` solves the equation ``AX+XB+C=O`` through recurrence. In this example, ``A=L``, ``B=-L``, ``C=O`` and ``X=\sqrt{L}``.
+```@example 3
+A(T) = OpI(T(0), T(0), T(0), T(2), N+4) # computes a big enough truncation of L
+B(T) = -A(T)
+C(T) = Zeros{T}(∞,∞)
+nothing # hide
+```
+
+We then set the initial condition. The stencil is a 5x5 cross so we need 5 columns for the buffer.
+```@example 3
+function init(T, N) # N is the height
+    ret = zeros(T, N, 5)
+    ret[1:3, 1:2] = OpI11(T(0), T(0), T(0), T(2), T(0.5), 1) # just need the very first results
+    ret
+end
+nothing # hide
+```
+
+Now we are ready to go.
+```@example 3
+P = BandedSylvesterRecurrencePlan(A, B, C, init, (N+2,N+1), (2, 2))
+sqrtL = hcat(stable_recurrence(P)...)
+```
+where `(N+2,N+1)` is the size of `sqrtL` and `(2, 2)` is the bandwidth of `B`.
+
+We can test that `sqrtL` is indeed the square root of `L`:
+```@example 3
+maximum(abs, sqrtL[1:N,1:N+1]*sqrtL[1:N+1,1:N] - L)
+```
