@@ -33,9 +33,12 @@ iscircular(A::AbstractArray) = iscircular(parent(A))
 tocircular(A::AbstractArray) = iscircular(A) ? A : CircularArray(A)
 
 # not to be confused with LinearAlgebra.BLAS.dotu
-_dotu(x, y) = mapreduce(*, +, x, y)
+"""
+    _dotu(x, y) = mapreduce(*, +, x, y)
 
-include("EltypeExtensions.jl")
+Not to be confused with LinearAlgebra.BLAS.dotu. See [https://github.com/JuliaLang/julia/pull/27677](https://github.com/JuliaLang/julia/pull/27677)
+"""
+_dotu(x, y) = mapreduce(*, +, x, y)
 
 """
     ToPrecision{F}(f::F) <: Function
