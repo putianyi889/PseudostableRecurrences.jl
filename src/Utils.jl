@@ -33,15 +33,18 @@ iscircular(A::AbstractArray) = iscircular(parent(A))
 tocircular(A::AbstractArray) = iscircular(A) ? A : CircularArray(A)
 
 # not to be confused with LinearAlgebra.BLAS.dotu
-_dotu(x, y) = mapreduce(*, +, x, y)
+"""
+    _dotu(x, y) = mapreduce(*, +, x, y)
 
-include("EltypeExtensions.jl")
+Not to be confused with LinearAlgebra.BLAS.dotu. See [https://github.com/JuliaLang/julia/pull/27677](https://github.com/JuliaLang/julia/pull/27677)
+"""
+_dotu(x, y) = mapreduce(*, +, x, y)
 
 """
     ToPrecision{F}(f::F) <: Function
 
-Create a function where the first argument specifies the returned [`precisiontype`](@ref):
-    (f::ToPrecision)(T, args...) = to_precision(T, f.f(args...))
+Create a function where the first argument specifies the returned `precisiontype`:
+    (f::ToPrecision)(T, args...) = precisionconvert(precisiontype(T), f.f(args...))
 
 # Examples
 ```jldoctest; setup = :(import PseudostableRecurrences: ToPrecision)

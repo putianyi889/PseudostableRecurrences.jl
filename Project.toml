@@ -1,12 +1,13 @@
 name = "PseudostableRecurrences"
 uuid = "4f7db8a5-8d22-4d9a-baad-9979a979c0ae"
 authors = ["Tianyi Pu <912396513@qq.com> and contributors"]
-version = "0.0.3"
+version = "0.0.4"
 
 [deps]
 ArrayLayouts = "4c555306-a7a7-4459-81d9-ec55ddd5c99a"
 BandedMatrices = "aae01518-5342-5314-be14-df237901396f"
 CircularArrays = "7a955b69-7140-5f4e-a0ed-f168c5e2e749"
+EltypeExtensions = "583f92f5-06d6-4306-8236-316410defc98"
 Infinities = "e1ba4f0e-776d-440f-acd9-e1d2e9742647"
 LazyArrays = "5078a376-72f3-5289-bfd5-ec5146d43c02"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -19,6 +20,7 @@ BandedMatrices = "0.15, 0.16, 0.17, 1"
 CircularArrays = "1"
 ClassicalOrthogonalPolynomials = "0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.10, 0.11, 0.12"
 Documenter = "0.19, 0.20, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 0.27, 1"
+EltypeExtensions = "0.0.2"
 InfiniteArrays = "0.10, 0.11, 0.12, 0.13"
 Infinities = "0.1"
 LazyArrays = "0.19, 0.20, 0.21, 0.22, 1"

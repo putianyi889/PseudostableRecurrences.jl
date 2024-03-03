@@ -1,6 +1,7 @@
 module PseudostableRecurrences
 
-# Write your package code here.
+using EltypeExtensions
+using EltypeExtensions: _to_precisiontype
 
 include("Utils.jl")
 include("CircularArraysExt.jl")
@@ -11,7 +12,7 @@ include("StencilRecurrences.jl")
 include("BandedSylvesters.jl")
 
 import LinearAlgebra: norm
-export stable_recurrence
+export stable_recurrence, precision_shift
 
 """
     precision_shift(P::AbstractLinearRecurrencePlan)
