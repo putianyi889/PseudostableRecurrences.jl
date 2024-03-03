@@ -43,8 +43,8 @@ _dotu(x, y) = mapreduce(*, +, x, y)
 """
     ToPrecision{F}(f::F) <: Function
 
-Create a function where the first argument specifies the returned [`precisiontype`](@ref):
-    (f::ToPrecision)(T, args...) = to_precision(T, f.f(args...))
+Create a function where the first argument specifies the returned `precisiontype`:
+    (f::ToPrecision)(T, args...) = precisionconvert(precisiontype(T), f.f(args...))
 
 # Examples
 ```jldoctest; setup = :(import PseudostableRecurrences: ToPrecision)
