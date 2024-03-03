@@ -75,7 +75,7 @@ end
 """
     method_to_precision(f, argtypes)
 
-If `hasmethod(f, argtypes)`, return `ToPrecision(f)`. Otherwise return `f`.
+If `hasmethod(f, argtypes)`, return [`ToPrecision`](@ref)`(f)`. Otherwise return `f`.
 
 # Examples
 julia> f() = π
