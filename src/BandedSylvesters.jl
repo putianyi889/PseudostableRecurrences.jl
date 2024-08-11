@@ -28,7 +28,7 @@ end
 
 buffer(R::BandedSylvesterRecurrence) = R.buffer
 function rdiv!(P::BandedSylvesterRecurrence, x)
-    rdiv!(P.buffer)
+    rdiv!(P.buffer, x)
     P
 end
 

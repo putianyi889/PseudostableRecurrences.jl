@@ -20,9 +20,10 @@ export stable_recurrence, precision_shift
 Estimates `log2` of the amplification of `P` by performing a full recurrence based on random initial conditions.
 """
 function precision_shift(P::AbstractLinearRecurrencePlan)
-    test, _ = init(P; init=:rand)
-    shift = 1
-    testmax = 1.0
+    test, start = init(P; init=:rand)
+    shift = 4 # safe choice from experiments
+    testmax = norm(start, Inf)
+    rdiv!(test, testmax)
     while true
         v = step!(test)
         if isnothing(v)
