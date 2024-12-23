@@ -1,8 +1,3 @@
-precision_convert(::Type{BigFloat}, prec, src::Real) = BigFloat(src, precision=prec)
-precision_convert(::Type{T}, prec, src::Complex) where T = Complex(precision_convert(T,prec,real(src)), precision_convert(T,prec,imag(src)))
-precision_convert(T, prec, src::Real) = T(src)
-
-
 """
     slicetype(T)
 
