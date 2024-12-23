@@ -1,8 +1,3 @@
-precision_convert(::Type{BigFloat}, prec, src::Real) = BigFloat(src, precision=prec)
-precision_convert(::Type{T}, prec, src::Complex) where T = Complex(precision_convert(T,prec,real(src)), precision_convert(T,prec,imag(src)))
-precision_convert(T, prec, src::Real) = T(src)
-
-
 """
     slicetype(T)
 
@@ -44,7 +39,7 @@ _dotu(x, y) = mapreduce(*, +, x, y)
     ToPrecision{F}(f::F) <: Function
 
 Create a function where the first argument specifies the returned `precisiontype`:
-    (f::ToPrecision)(T, args...) = precisionconvert(precisiontype(T), f.f(args...))
+    (f::ToPrecision)(T, args...) = convert_precisiontype(precisiontype(T), f.f(args...))
 
 # Examples
 ```jldoctest; setup = :(import PseudostableRecurrences: ToPrecision)
@@ -73,7 +68,7 @@ julia> g(Float32, 3)
 struct ToPrecision{F} <: Function
     f::F
 end
-(f::ToPrecision)(T, args...) = precisionconvert(precisiontype(T), f.f(args...))
+(f::ToPrecision)(T, args...) = convert_precisiontype(precisiontype(T), f.f(args...))
 
 """
     method_to_precision(f, argtypes)

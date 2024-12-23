@@ -45,13 +45,13 @@ function stable_recurrence(P::AbstractLinearRecurrencePlan, ::Type{T} = Float64)
     varprec = precision(T)
     setprecision(varprec + Int(ceil(precision_shift(P))))
     R, ini = init(P, T=BigFloat, init=:default)
-    container = [precision_convert.(T, varprec, y) for y in ini]
+    container = [convert_precisiontype(T, y, varprec) for y in ini]
     while true
         v = step!(R)
         if isnothing(v)
             break
         end
-        push!(container, precision_convert.(T, varprec, v))
+        push!(container, convert_precisiontype(T, v, varprec))
     end
     setprecision(envprec)
     container

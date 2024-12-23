@@ -9,7 +9,7 @@ using QuadGK
         coefs = (n -> 2//3, n -> -3, n -> 10//3)
         f_init(T) = [sqrt(T(2)), sqrt(T(2)), sqrt(T(2)), T(0)]
         P = StencilRecurrencePlan{Real}(stencil, coefs, f_init, (100,))
-        @test stable_recurrence(P)[end] ≈ sqrt(2)
+        @test stable_recurrence(P)[end][] ≈ sqrt(2)
     end
     @testset "A definite integral" begin
         stencil = (CartesianIndex(-1,-1), CartesianIndex(0,-1), CartesianIndex(0,0))
