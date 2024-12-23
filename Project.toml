@@ -1,7 +1,7 @@
 name = "PseudostableRecurrences"
 uuid = "4f7db8a5-8d22-4d9a-baad-9979a979c0ae"
 authors = ["Tianyi Pu <912396513@qq.com> and contributors"]
-version = "0.0.7"
+version = "0.0.8"
 
 [deps]
 ArrayLayouts = "4c555306-a7a7-4459-81d9-ec55ddd5c99a"
